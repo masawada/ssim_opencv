@@ -27,13 +27,16 @@ function psnr(b1, b2){
     noise += (b1[i]-b2[i]) * (b1[i]-b2[i]);
     if(peak < b1[i]) peak=b1[i];
   }
-  var mse=noise/n;
-  return 10 * Math.log10((peak*peak)/mse);
+  var mse=noise/(n);
+  return 10*Math.log10((peak*peak)/mse);
 }
 
-function draw() {
-  var w=710;
-  var h=465;
+function draw_with_calc() {
+  var src=document.getElementById("srcimg");
+  var w=src.width;
+  var h=src.height;
+
+  // create src image data
   var c1 = document.createElement("canvas");
   var ctx1 = c1.getContext('2d');
   var img = new Image();
@@ -42,7 +45,7 @@ function draw() {
   c1.height=h;
   ctx1.drawImage(img, 0, 0);
 
-  // create aging image
+  // create aging image data
   var img2=document.createElement("img");
   img2.src=c1.toDataURL("image/jpeg", 0.05);  // (bad quality)0 - 1(good quality)
   var c2= document.createElement("canvas");
@@ -55,17 +58,16 @@ function draw() {
   // calc with red[0] channel
   var buffer1 = split(ctx1.getImageData(0,0,w,h).data,w,h)[0];
   var buffer2 = split(ctx2.getImageData(0,0,w,h).data,w,h)[0];
-  document.getElementById("divPSNR").innerHTML="PSNR: "+psnr(buffer1,buffer2);
+  document.getElementById("textPSNR").innerHTML="PSNR: "+psnr(buffer1,buffer2);
 }
 
-onload = function() {
-  draw();
+onload=function(){
+  draw_with_calc();
 }
-
 </script>
 </head>
 <body>
-<div id="divPSNR">aa</div>
-<img src="gf.png"/>
+<div id="textPSNR"></div>
+<img id="srcimg" src="gf.png"/>
 </body>
 </html>
