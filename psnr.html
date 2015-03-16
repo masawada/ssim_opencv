@@ -1,7 +1,9 @@
 <html>
 <!-- 
 
-% python -m SimpleHTTPServer
+% cd /PATH/TO/ssim_opencv/
+% python -m SimpleHTTPServer 8000
+
 % open http://localhost:8000/psnr.html
 
  -->
@@ -39,35 +41,39 @@ function draw_with_calc() {
   // create src image data
   var c1 = document.createElement("canvas");
   var ctx1 = c1.getContext('2d');
-  var img = new Image();
-  img.src = "gf.png";
   c1.width=w;
   c1.height=h;
-  ctx1.drawImage(img, 0, 0);
+  ctx1.drawImage(src, 0, 0);
 
+  var q=document.getElementById("quality").value;
   // create aging image data
   var img2=document.createElement("img");
-  img2.src=c1.toDataURL("image/jpeg", 0.05);  // (bad quality)0 - 1(good quality)
-  var c2= document.createElement("canvas");
+  img2.src=c1.toDataURL("image/jpeg", parseFloat(q));  // (bad quality)0 - 1(good quality)
+  var c2= document.getElementById("destimg");
   c2.width=w;
   c2.height=h;
   var ctx2 = c2.getContext("2d");
+  ctx2.clearRect(0,0,w,h);
   ctx2.drawImage(img2,0,0);
-  document.body.appendChild(img2);
 
   // calc with red[0] channel
   var buffer1 = split(ctx1.getImageData(0,0,w,h).data,w,h)[0];
   var buffer2 = split(ctx2.getImageData(0,0,w,h).data,w,h)[0];
-  document.getElementById("textPSNR").innerHTML="PSNR: "+psnr(buffer1,buffer2);
+  document.getElementById("textPSNR").innerHTML="QUALITY: "+q+", PSNR: "+psnr(buffer1,buffer2);
 }
 
 onload=function(){
   draw_with_calc();
+  document.getElementById("quality").onchange=function(){
+    draw_with_calc();
+  }
 }
 </script>
 </head>
 <body>
+<input type="range" id="quality" min="0" max="1" step="0.01">
 <div id="textPSNR"></div>
 <img id="srcimg" src="gf.png"/>
+<canvas id="destimg"></canvas>
 </body>
 </html>
